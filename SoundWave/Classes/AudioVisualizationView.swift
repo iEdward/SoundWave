@@ -17,9 +17,17 @@ public class AudioVisualizationView: BaseNibView {
 	private enum LevelBarType {
 		case upper
 		case lower
-		case single
+		case singleCentered
+        case singleTop
+        case singleBottom
 	}
-
+    
+    public enum SingleStickType {
+        case centered
+        case top
+        case bottom
+    }
+    
 	@IBInspectable public var meteringLevelBarWidth: CGFloat = 3.0 {
 		didSet {
 			self.setNeedsDisplay()
@@ -35,7 +43,8 @@ public class AudioVisualizationView: BaseNibView {
 			self.setNeedsDisplay()
 		}
 	}
-	@IBInspectable public var meteringLevelBarSingleStick: Bool = false {
+    
+    public var meteringLevelBarSingleStick: SingleStickType? = nil {
 		didSet {
 			self.setNeedsDisplay()
 		}
@@ -305,8 +314,15 @@ public class AudioVisualizationView: BaseNibView {
 		let offset = max(self.currentMeteringLevelsArray.count - self.maximumNumberBars, 0)
 
 		for index in offset..<self.currentMeteringLevelsArray.count {
-			if self.meteringLevelBarSingleStick {
-				self.drawBar(index - offset, meteringLevelIndex: index, levelBarType: .single, context: context)
+            if let meteringLevelBarSingleStick = meteringLevelBarSingleStick {
+                switch meteringLevelBarSingleStick {
+                case .centered:
+                    self.drawBar(index - offset, meteringLevelIndex: index, levelBarType: .singleCentered, context: context)
+                case .top:
+                    self.drawBar(index - offset, meteringLevelIndex: index, levelBarType: .singleTop, context: context)
+                case .bottom:
+                    self.drawBar(index - offset, meteringLevelIndex: index, levelBarType: .singleBottom, context: context)
+                }
 			} else {
 				self.drawBar(index - offset, meteringLevelIndex: index, levelBarType: .upper, context: context)
 				self.drawBar(index - offset, meteringLevelIndex: index, levelBarType: .lower, context: context)
@@ -333,11 +349,21 @@ public class AudioVisualizationView: BaseNibView {
 							 y: self.centerY,
 							 width: self.meteringLevelBarWidth,
 							 height: heightForMeteringLevel)
-		case .single:
+		case .singleCentered:
 			barRect = CGRect(x: xPointForMeteringLevel,
 							 y: self.centerY - heightForMeteringLevel,
 							 width: self.meteringLevelBarWidth,
 							 height: heightForMeteringLevel * 2)
+        case .singleTop:
+            barRect = CGRect(x: xPointForMeteringLevel,
+                             y: self.frame.size.height - heightForMeteringLevel,
+                             width: self.meteringLevelBarWidth,
+                             height: heightForMeteringLevel * 2)
+        case .singleBottom:
+            barRect = CGRect(x: xPointForMeteringLevel,
+                             y: 0,
+                             width: self.meteringLevelBarWidth,
+                             height: heightForMeteringLevel * 2)
 		}
 
 		let barPath: UIBezierPath = UIBezierPath(roundedRect: barRect, cornerRadius: self.meteringLevelBarCornerRadius)
