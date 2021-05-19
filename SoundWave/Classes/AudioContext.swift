@@ -11,12 +11,14 @@ import AVFoundation
 
 public final class AudioContext {
 	public let audioURL: URL
+    public let duration: Float64
 	public let totalSamples: Int
 	public let asset: AVAsset
 	public let assetTrack: AVAssetTrack
 
-	private init(audioURL: URL, totalSamples: Int, asset: AVAsset, assetTrack: AVAssetTrack) {
+	private init(audioURL: URL, duration: Float64, totalSamples: Int, asset: AVAsset, assetTrack: AVAssetTrack) {
 		self.audioURL = audioURL
+        self.duration = duration
 		self.totalSamples = totalSamples
 		self.asset = asset
 		self.assetTrack = assetTrack
@@ -43,7 +45,7 @@ public final class AudioContext {
 					break
 				}
 				let totalSamples = Int((asbd.pointee.mSampleRate) * Float64(asset.duration.value) / Float64(asset.duration.timescale))
-				let audioContext = AudioContext(audioURL: audioURL, totalSamples: totalSamples, asset: asset, assetTrack: assetTrack)
+				let audioContext = AudioContext(audioURL: audioURL, duration: CMTimeGetSeconds(asset.duration), totalSamples: totalSamples, asset: asset, assetTrack: assetTrack)
 				completionHandler(audioContext)
 			case .failed, .cancelled, .loading, .unknown:
 				print("Couldn't load asset: \(error?.localizedDescription ?? "Unknown error")")
