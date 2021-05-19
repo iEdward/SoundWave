@@ -26,7 +26,9 @@ public final class AudioContext {
 		let asset = AVURLAsset(url: audioURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: NSNumber(value: true as Bool)])
 
 		guard let assetTrack = asset.tracks(withMediaType: AVMediaType.audio).first else {
-			fatalError("Couldn't load AVAssetTrack")
+            print("Couldn't load AVAssetTrack")
+            completionHandler(nil)
+            return
 		}
 
 		asset.loadValuesAsynchronously(forKeys: ["duration"]) {
@@ -57,7 +59,8 @@ public final class AudioContext {
 		let sampleRange: CountableRange<Int> = 0..<self.totalSamples / 3
 
 		guard let reader = try? AVAssetReader(asset: self.asset) else {
-			fatalError("Couldn't initialize the AVAssetReader")
+			print("Couldn't initialize the AVAssetReader")
+            return []
 		}
 
 		reader.timeRange = CMTimeRange(
@@ -81,7 +84,8 @@ public final class AudioContext {
 		let formatDescriptions = self.assetTrack.formatDescriptions as! [CMAudioFormatDescription]
 		for item in formatDescriptions {
 			guard let fmtDesc = CMAudioFormatDescriptionGetStreamBasicDescription(item) else {
-				fatalError("Couldn't get the format description")
+				print("Couldn't get the format description")
+                return []
 			}
 			channelCount = Int(fmtDesc.pointee.mChannelsPerFrame)
 		}
@@ -142,7 +146,8 @@ public final class AudioContext {
 		}
 
 		guard reader.status == .completed || true else {
-			fatalError("Couldn't read the audio file")
+			print("Couldn't read the audio file")
+            return []
 		}
 
 		return self.percentage(outputSamples)

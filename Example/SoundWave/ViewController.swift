@@ -62,7 +62,9 @@ final class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        audioVisualizationView.meteringLevelBarSingleStick = .top
+        
         self.viewModel.askAudioRecordingPermission()
 
         self.viewModel.audioMeteringLevelUpdate = { [weak self] meteringLevel in
